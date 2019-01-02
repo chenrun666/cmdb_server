@@ -1,0 +1,29 @@
+运维愿景：
+    1， 自动装机
+    2， 配置管理
+    3， 监控
+    4， 堡垒机器
+
+    必备：资产管理
+
+目前状况：
+    手动维护Excel
+    资产自动采集并汇报入库
+
+    CMDB - configure Manangment DataBase
+
+如何实现自动采集？
+    subprocess
+    Linux基本命令
+    v = subprocess.getoutput("Linux命令")
+
+
+# # # # # # # # # # # # # # # #
+api    <---     agent         #
+                              #
+url                           #
+发送的数据格式                  #
+返回值                         #
+# # # # # # # # # # # # # # # #
+
+数据库  ->    api   ->   中控机   ->

@@ -1,0 +1,115 @@
+1， 为什么开发CMDB？
+    Excel维护资产信息，资产变更时难以保证Excel表正确性；信息交换不方便
+    自动采集资产工具，目标：自动汇报，保存变更记录
+    最终目标：实现运维自动化
+
+
+2， CMDB架构？
+    agent，SSH（paramiko）， saltstack
+    三部分；
+        - 资产采集（采集资产）
+        - API（接受数据保存入库， 对外提供数据接口）
+        - 后台管理（增删该查）
+
+3， 你负责做什么？
+        - 资产采集
+        三种方案：
+            - agent
+            - prarmiko
+            - saltstack
+        提高扩展性：参考Django，settings和中间件
+
+
+4， 有没有遇到难题？
+    Linux：Linux不太熟
+    唯一标识：大问题
+
+
+今日内容：
+    1， 唯一标识
+        标准化
+        虚拟机不需要采集
+            主板SN号，物理机的SN是唯一的。
+        如果需要采集虚拟机
+            那么主板SN好是不准确的（openstack）
+
+        标准化：
+            主机名不能重复
+            流程：
+                - 资产录入，机房，机柜，机柜位置
+                - 在装机时，需要将服务器信息录入CMDB，
+                - 资产采集：
+
+            使用主机名作为唯一标识
+            依赖本地文件
+            a. 装系统  初始化软件（CMDB），运行CMDB：
+                - 通过命令获取主机名
+                - 并且写入到本地指定文件
+            b. 将资产信息发送到API
+            c. 获取资产信息：
+                - 本地文件主机名 != 命令获取的主机名 （按照文件的主机名）
+                - 本地文件主机名 == 命令获取的主机名
+
+    ====================================================================
+    最终流程：
+        标准化： 主机名不重复；流程标准化（装机的同时，主机在CMDB中设置）
+    服务器资产采集（Agent）：
+        a. 第一次：文件不存在，或内容为空：
+           采集资产：
+                - 写入文件
+                - 发送API
+        b. 第N次：采集资产，主机名：文件中获取
+
+        server_info = PluginManager().exec_plugin()
+        hostname = server_info["basic"]["data"]["hostname"]
+        certname = open(settings.CERT_PATH, "r", encoding="utf-8").read().strip()
+        if not certname:
+            with open(settings.CERT_PATH, "w", encoding="utf-8") as f:
+                f.write(hostname)
+        else:
+            server_info["basic"]["data"]["hostname"] = certname
+
+        self.post_asset(server_info)
+
+
+    SSH或Salt：
+        中控机： 获取未采集的主机名列表：
+
+
+
+
+
+
+
+
+    2， 线程池
+        提高并发：线程，进程
+        线程池或者进程池：20
+
+        python2
+            线程池：无
+            进程池：有
+        python3
+            线程池：有
+            进城吃：有
+
+    def run(self, host):
+        server_info = PluginManager(host).exec_plugin()
+        self.post_asset(server_info)
+
+    def execute(self):
+        from concurrent.futures import ThreadPoolExecutor
+        host_list = self.get_host()
+        pool = ThreadPoolExecutor(10)
+        for host in host_list:
+            pool.submit(self.run, host)
+
+    3， API验证
+        pass
+
+    4， 数据库设计
+
+
+作业：将数据写到数据库中
+
+
